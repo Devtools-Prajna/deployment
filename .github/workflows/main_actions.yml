@@ -16,7 +16,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
@@ -35,7 +35,7 @@ jobs:
           source venv/bin/activate
           pytest
 
-      - name: Zip app for deployment
+      - name: Package app for deployment
         run: |
           cd my-flask-app
           zip -r ../release.zip . -x "venv/*" ".git/*" ".github/*" "__pycache__/*"
@@ -62,6 +62,6 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: YOUR_WEBAPP_NAME  # replace with your Azure Web App name
+          app-name: YOUR_WEBAPP_NAME   # Replace with your Azure Web App name
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
