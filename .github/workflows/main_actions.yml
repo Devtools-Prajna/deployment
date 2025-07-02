@@ -62,6 +62,6 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'actions'                          # Your Azure Web App name here
-          slot-name: 'Production'                       # Default slot, remove or change if needed
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}  # Your secret name
+          app-name: 'actions'                          
+          slot-name: 'Production'                     
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }} 
