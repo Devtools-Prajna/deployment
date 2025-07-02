@@ -1,9 +1,4 @@
-# Docs:
-# Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# GitHub Actions for Azure: https://github.com/Azure/actions
-# Python + Azure Web Apps: https://aka.ms/python-webapps-actions
-
-name: Build and deploy Python app to Azure Web App
+name: Test and Deploy Python app to Azure Web App
 
 on:
   push:
@@ -27,21 +22,25 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
+        working-directory: my-flask-app
         run: |
           python -m venv venv
           source venv/bin/activate
-          pip install -r ./requirements.txt
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Run tests with pytest
+      - name: Run tests
+        working-directory: my-flask-app
         run: |
           source venv/bin/activate
           pytest
 
-      - name: Zip application
+      - name: Zip app for deployment
         run: |
-          zip -r release.zip . -x "venv/*" ".github/*" "*.git*" "__pycache__/*"
+          cd my-flask-app
+          zip -r ../release.zip . -x "venv/*" ".git/*" ".github/*" "__pycache__/*"
 
-      - name: Upload deployment artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: python-app
@@ -52,7 +51,7 @@ jobs:
     needs: build
 
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: python-app
@@ -63,7 +62,6 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'actions'  # Make sure this matches your App Service name
+          app-name: YOUR_WEBAPP_NAME  # replace with your Azure Web App name
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_68705F4AF67D4D43905E0AE5CB517F64 }}
-
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
