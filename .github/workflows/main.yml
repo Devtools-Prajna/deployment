@@ -28,16 +28,17 @@ jobs:
       - name: Install dependencies
         working-directory: flask-azure-function
         run: |
-          python -m venv venv
+          python -m venv venv  # Create virtual environment
+          ls -la venv           # Debugging step to confirm that the venv directory exists
           source venv/bin/activate  # Activate the virtual environment
           pip install --upgrade pip
           pip install -r requirements.txt  # Install required packages from updated requirements.txt
 
       - name: Run tests
         run: |
-          source venv/bin/activate  # Activate the virtual environment
+          source flask-azure-function/venv/bin/activate  # Activate the virtual environment
           export PYTHONPATH=$(pwd)  # Ensure the root directory is in PYTHONPATH
-          pytest test/test_app.py    # Run the tests
+          pytest flask-azure-function/test/test_app.py    # Run the tests
 
       - name: Package app for deployment
         run: |
