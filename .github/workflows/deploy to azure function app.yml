@@ -59,9 +59,12 @@ jobs:
       - name: Unzip artifact
         run: unzip release.zip
 
-      - name: Deploy to Azure Function App using ZIP Deploy
-        run: |
-          az functionapp deployment source config-zip \
-            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-            --name ${{ secrets.AZURE_FUNCTION_APP_NAME }} \
-            --src ./release.zip
+      - name: Deploy to Azure Function App using Publish Profile
+        uses: azure/functions-action@v1
+        with:
+          app-name: 'flaskapp1 '  # Replace with your Function App name
+          publish-profile: ${{ secrets.AZURE_APP_PUBLISH_PROFILE }}  # Use the publish profile secret
+          package: './release.zip'
+          scm-do-build-during-deployment: false  # Disable build during deployment
+          enable-oryx-build: false  # Disable Oryx build (use your own build)
+          remote-build: false  # Disable remote build
