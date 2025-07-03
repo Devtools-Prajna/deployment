@@ -1,4 +1,4 @@
-name: Build and Deploy Python App to Azure Function App
+name: Test and Deploy Python app to Azure Web App
 
 on:
   push:
@@ -10,20 +10,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read  # Allow reading repository contents
+      contents: read
 
     steps:
-      # Step 1: Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Set up Python environment
       - name: Set up Python 3.10
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      # Step 3: Install dependencies
       - name: Install dependencies
         working-directory: my-flask-app
         run: |
@@ -31,21 +28,15 @@ jobs:
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
-
-      # Step 4: Run tests (optional but recommended)
       - name: Run tests
         working-directory: my-flask-app
         run: |
           source venv/bin/activate
           pytest
-
-      # Step 5: Package the app for deployment (creating a zip file)
       - name: Package app for deployment
         run: |
           cd my-flask-app
           zip -r ../release.zip . -x "venv/*" ".git/*" ".github/*" "__pycache__/*"
-
-      # Step 6: Upload the package as an artifact for later use
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -54,15 +45,17 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build  # Ensure this job runs after the build job
+    needs: build
 
     steps:
-      # Step 1: Download the artifact from the build job
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: python-app
 
+      - name: Unzip artifact
+        run: unzip release.zip
+        
       # Step 2: Deploy to Azure Function App
       - name: 'Deploy to Azure Function App'
         id: deploy-to-functionapp
