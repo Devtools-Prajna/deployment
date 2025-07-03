@@ -63,30 +63,11 @@ jobs:
         with:
           name: python-app
 
-      # Step 2: Install Azure CLI
-      - name: Install Azure CLI
-        run: |
-          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash  # Installs Azure CLI
-
-      # Step 3: Log in to Azure using Publish Profile
-      - name: Log in to Azure using Publish Profile
-        run: |
-          # Save the publish profile from secrets to a file
-          echo "${{ secrets.AZURE_APP_PUBLISH_PROFILE }}" > publish-profile.publishsettings
-          
-          # Authenticate with Azure Function App using the Publish Profile
-          az functionapp deployment source config-zip \
-            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-            --name ${{ secrets.AZURE_FUNCTION_APP_NAME }} \
-            --src ./release.zip \
-            --publish-profile publish-profile.publishsettings
-
-      # Step 4: Deploy the app to Azure Function App using ZipDeploy
-      - name: Deploy to Azure Function App using ZipDeploy
-        run: |
-          # Deploy the zip file to the Azure Function App using the publish profile
-          az functionapp deployment source config-zip \
-            --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-            --name ${{ secrets.AZURE_FUNCTION_APP_NAME }} \
-            --src ./release.zip \
-            --publish-profile publish-profile.publishsettings
+      # Step 2: Deploy to Azure Function App
+      - name: 'Deploy to Azure Function App'
+        id: deploy-to-functionapp
+        uses: azure/functions-action@v2
+        with:
+          app-name: ${{ env.AZURE_FUNCTION_APP_NAME }}
+          publish-profile: ${{ secrets.AZURE_APP_PUBLISH_PROFILE }}  # Azure Publish Profile secret
+          package: .  # Deploy the entire repository
