@@ -37,7 +37,7 @@ jobs:
       - name: Run tests
         run: |
           source flask-azure-function/venv/bin/activate  # Activate the virtual environment
-          export PYTHONPATH=$(pwd)  # Ensure the root directory is in PYTHONPATH
+          export PYTHONPATH=$(pwd)/flask-azure-function  # Add flask-azure-function to PYTHONPATH
           pytest flask-azure-function/test/test_app.py    # Run the tests
 
       - name: Package app for deployment
