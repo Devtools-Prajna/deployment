@@ -21,13 +21,17 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: List files in flask-azure-function directory (debugging step)
+        run: |
+          ls -la flask-azure-function  # List contents of the folder to confirm requirements.txt is there
+
       - name: Install dependencies
         working-directory: flask-azure-function
         run: |
           python -m venv venv
           source venv/bin/activate
           pip install --upgrade pip
-          pip install -r flask-azure-function/requirements.txt
+          pip install -r requirements.txt  # Corrected path to requirements.txt
 
       - name: Run tests (if any)
         working-directory: flask-azure-function
