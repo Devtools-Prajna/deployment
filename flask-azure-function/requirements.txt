@@ -1,2 +1,6 @@
-Flask==2.0.1
-azure-functions==1.10.0
+      - name: Install dependencies
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r src/requirements.txt  # Update the path if the file is in a subfolder
