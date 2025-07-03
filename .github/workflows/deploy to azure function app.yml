@@ -9,8 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - name: Checkout code
@@ -63,13 +61,9 @@ jobs:
         run: |
           curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-      - name: Authenticate to Azure using Publish Profile
-        run: |
-          echo "${{ secrets.AZURE_APP_PUBLISH_PROFILE }}" > publish-profile.publishsettings
-          az webapp deploy --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_FUNCTION_APP_NAME }} --src-path ./release.zip --publish-profile publish-profile.publishsettings
-
       - name: Deploy to Azure Function App
         run: |
+          echo "${{ secrets.AZURE_APP_PUBLISH_PROFILE }}" > publish-profile.publishsettings
           az functionapp deployment source config-zip \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --name ${{ secrets.AZURE_FUNCTION_APP_NAME }} \
