@@ -61,10 +61,13 @@ jobs:
         run: |
           curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-      - name: Deploy to Azure Function App
+      - name: Echo the publish profile into a file
+        run: echo "${{ secrets.AZURE_APP_PUBLISH_PROFILE }}" > publish-profile.publishsettings
+
+      - name: Deploy to Azure Function App using Publish Profile
         run: |
-          echo "${{ secrets.AZURE_APP_PUBLISH_PROFILE }}" > publish-profile.publishsettings
           az functionapp deployment source config-zip \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --name ${{ secrets.AZURE_FUNCTION_APP_NAME }} \
-            --src ./release.zip
+            --src ./release.zip \
+            --publish-profile publish-profile.publishsettings
