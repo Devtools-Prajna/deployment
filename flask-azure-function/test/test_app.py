@@ -1,43 +1,35 @@
 import pytest
-from flask_azure_function.app import app  # Corrected the import path
+from app import app  # Correct import for app.py in the root directory
 
-@pytest.fixture
-def client():
-    """Fixture to create a test client."""
-    app.config['TESTING'] = True  # Set the app to testing mode
-    with app.test_client() as client:
-        yield client
+def test_index():
+    # Your test logic for the index route
+    client = app.test_client()
+    response = client.get('/')
+    assert response.status_code == 200
+    assert b"Books" in response.data  # Check if the word "Books" exists in the page
 
-def test_index(client):
-    """Test if the index page loads successfully."""
-    rv = client.get('/')
-    assert rv.status_code == 200
-    assert b'Books' in rv.data  # Check if the term 'Books' appears in the page
+def test_add_book():
+    # Your test logic for adding a book
+    client = app.test_client()
+    response = client.post('/add', data={
+        'title': 'The Catcher in the Rye',
+        'author': 'J.D. Salinger'
+    })
+    assert response.status_code == 302  # Should redirect to the index page after adding
+    assert b"The Catcher in the Rye" in response.data  # Verify the book was added
 
-def test_add_book(client):
-    """Test the adding of a new book."""
-    data = {
-        'title': 'Test Book',
-        'author': 'Test Author'
-    }
-    rv = client.post('/add', data=data, follow_redirects=True)
-    assert rv.status_code == 200
-    assert b'Test Book' in rv.data  # Ensure the new book appears in the page
+def test_edit_book():
+    # Your test logic for editing a book
+    client = app.test_client()
+    client.post('/add', data={'title': '1984', 'author': 'George Orwell'})  # Adding a book first
+    response = client.post('/edit/0', data={'title': '1984 (Updated)', 'author': 'George Orwell'})
+    assert response.status_code == 302  # Should redirect to the index page after editing
+    assert b"1984 (Updated)" in response.data  # Verify the updated book title
 
-def test_delete_book(client):
-    """Test deleting a book from the list."""
-    # Add a test book first
-    data = {
-        'title': 'Book to Delete',
-        'author': 'Author'
-    }
-    client.post('/add', data=data, follow_redirects=True)
-    
-    # Get the index to find the book index
-    rv = client.get('/')
-    book_index = rv.data.decode().find('Book to Delete')
-
-    # Delete the book
-    rv = client.get(f'/delete/{book_index}', follow_redirects=True)
-    assert rv.status_code == 200
-    assert b'Book to Delete' not in rv.data  # Ensure the book is removed
+def test_delete_book():
+    # Your test logic for deleting a book
+    client = app.test_client()
+    client.post('/add', data={'title': 'To Kill a Mockingbird', 'author': 'Harper Lee'})
+    response = client.get('/delete/0')  # Delete the first book
+    assert response.status_code == 302  # Should redirect to the index page after deletion
+    assert b"To Kill a Mockingbird" not in response.data  # Verify the book is deleted
