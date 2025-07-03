@@ -1,4 +1,4 @@
-name: Test and Deploy Python app to Azure Web App
+name: Test and Deploy Python app to Azure Function App
 
 on:
   push:
@@ -58,11 +58,11 @@ jobs:
 
       - name: Unzip artifact
         run: unzip release.zip
-        
+
       # Step 2: Deploy to Azure Function App
       - name: 'Deploy to Azure Function App'
         id: deploy-to-functionapp
-        uses: azure/functions-action@v2
+        uses: azure/functions-action@v1  # Use version v1 here
         with:
           app-name: ${{ env.AZURE_FUNCTION_APP_NAME }}
           publish-profile: ${{ secrets.AZURE_APP_PUBLISH_PROFILE }}  # Azure Publish Profile secret
