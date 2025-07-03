@@ -25,21 +25,15 @@ jobs:
         run: |
           ls -la flask-azure-function  # List contents of the folder to confirm requirements.txt is there
 
-      - name: Create virtual environment
-        working-directory: flask-azure-function  # Navigate to the correct directory
+      - name: Install dependencies
+        working-directory: flask-azure-function
         run: |
           python -m venv venv
           source venv/bin/activate  # Activate the virtual environment
-
-      - name: Install dependencies
-        working-directory: flask-azure-function  # Install dependencies in the right directory
-        run: |
-          source venv/bin/activate  # Activate the virtual environment
           pip install --upgrade pip
-          pip install -r requirements.txt  # Install required packages from requirements.txt
+          pip install -r requirements.txt  # Install required packages from updated requirements.txt
 
       - name: Run tests
-        working-directory: flask-azure-function  # Ensure the right directory is used for tests
         run: |
           source venv/bin/activate  # Activate the virtual environment
           export PYTHONPATH=$(pwd)  # Ensure the root directory is in PYTHONPATH
