@@ -1,47 +1,57 @@
-name: Upload Reports
- 
+name: Build, Test, and Upload Python Report to Azure Blob Storage
+
 on:
   push:
+    branches:
+      - main
+  workflow_dispatch:
+
 jobs:
-  Unit-testing:
+  build_and_test:
     runs-on: ubuntu-latest
- 
+
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v4
-      - name: Set up Node.js with version
-        uses: actions/setup-node@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
         with:
-          node-version: 18
- 
+          python-version: '3.10'
+
       - name: Install dependencies
-        run: npm install
- 
-      - name: Run tests
-        run: npm test
- 
-      - name: Archive/store
+        working-directory: my-flask-app
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests & generate report
+        working-directory: my-flask-app
+        run: |
+          source venv/bin/activate
+          pytest --junitxml=test-results.xml
+
+      - name: Upload test report as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: my-artifact
-          path: test-results.xml
-      - name: Download artifacts
+          name: test-report
+          path: my-flask-app/test-results.xml
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build_and_test
+
+    steps:
+      - name: Download test report artifact
         uses: actions/download-artifact@v4
         with:
-          name: my-artifact
-          path: ./artifact
- 
-  upload:
-    needs: Unit-testing
-    runs-on: ubuntu-latest
- 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
- 
-      - name: upload to blob storage
+          name: test-report
+
+      - name: Upload test report to Azure Blob Storage
         uses: fixpoint/azblob-upload-artifact@v4
         with:
           connection-string: ${{ secrets.AZURE_CONNECTION_STRING }}
-          name: my-artifact
-          path: ./artifact/test-results.xml
+          name: python-test-report
+          path: test-results.xml
