@@ -1,0 +1,47 @@
+name: Upload Reports
+ 
+on:
+  push:
+jobs:
+  Unit-testing:
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Set up Node.js with version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+ 
+      - name: Install dependencies
+        run: npm install
+ 
+      - name: Run tests
+        run: npm test
+ 
+      - name: Archive/store
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-artifact
+          path: test-results.xml
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: my-artifact
+          path: ./artifact
+ 
+  upload:
+    needs: Unit-testing
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+ 
+      - name: upload to blob storage
+        uses: fixpoint/azblob-upload-artifact@v4
+        with:
+          connection-string: ${{ secrets.AZURE_CONNECTION_STRING }}
+          name: my-artifact
+          path: ./artifact/test-results.xml
