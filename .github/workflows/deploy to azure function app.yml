@@ -28,15 +28,18 @@ jobs:
           source venv/bin/activate
           pip install --upgrade pip
           pip install -r requirements.txt
+
       - name: Run tests
         working-directory: my-flask-app
         run: |
           source venv/bin/activate
           pytest
+
       - name: Package app for deployment
         run: |
           cd my-flask-app
           zip -r ../release.zip . -x "venv/*" ".git/*" ".github/*" "__pycache__/*"
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -57,18 +60,12 @@ jobs:
           name: python-app
 
       - name: Unzip artifact
-        run: unzip release.zip
+        run: unzip release.zip -d app
 
-      # Step 2: Deploy to Azure Function App
-      - name: 'Deploy to Azure Function App'
+      - name: Deploy to Azure Function App
         id: deploy-to-functionapp
         uses: azure/functions-action@v1
         with:
-          app-name: ${{ secrets.AZURE_FUNCTION_APP_NAME }}  # Use secret for the app name
-          publish-profile: ${{ secrets.AZURE_FUNCTION_PUBLISH_PROFILE }}  # Azure Publish Profile secret
-          package: .  # Deploy the entire repository
-          respect-pom-xml: false
-          respect-funcignore: false
-          scm-do-build-during-deployment: false
-          enable-oryx-build: false
-          remote-build: false
+          app-name: ${{ secrets.AZURE_FUNCTION_APP_NAME }}
+          publish-profile: ${{ secrets.AZURE_FUNCTION_PUBLISH_PROFILE }}
+          package: ./app
