@@ -65,7 +65,7 @@ jobs:
         uses: azure/functions-action@v1
         with:
           app-name: ${{ secrets.AZURE_FUNCTION_APP_NAME }}  # Use secret for the app name
-          publish-profile: ${{ secrets.AZURE_APP_PUBLISH_PROFILE }}  # Azure Publish Profile secret
+          publish-profile: ${{ secrets.AZURE_FUNCTION_PUBLISH_PROFILE }}  # Azure Publish Profile secret
           package: .  # Deploy the entire repository
           respect-pom-xml: false
           respect-funcignore: false
